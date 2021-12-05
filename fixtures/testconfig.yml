@@ -1,0 +1,21 @@
+
+log:
+  type: local
+  loglevel: debug
+
+aws:
+  sqs:
+    region: eu-central-
+      
+kafka:
+  server: localhost
+
+agent:
+  routes:
+    - source: test-queue
+      target: test-topic
+    - source: test-queue-2
+      target: error
+    - source: error
+
+  
