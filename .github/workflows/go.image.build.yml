@@ -26,6 +26,8 @@ jobs:
         uses: actions/setup-go@v2
         with:
           go-version: ${{ env.goversion }}
+      - name: Run tests
+        run: go test -v  -covermode=count ./...
       - name: Build Binary
         run: CGO_ENABLED=0 GOOS=linux GOARCH=${{ matrix.arch }} go build -a -installsuffix cgo -v -o build_artifact_bin
       - name: Log in to GitHub Docker Registry
