@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"github.com/stretchr/testify/suite"
+	"sync"
 	"testing"
 	"time"
 )
@@ -34,7 +35,7 @@ func (suite *AgentTestSuite) TestProcessMessages() {
 
 	suite.init("test-queue", nil)
 
-	go suite.agent.Run(suite.ctx)
+	go suite.agent.Run(suite.ctx, suite.waitGroupForTest())
 	time.Sleep(500 * time.Millisecond)
 	suite.cancelFunc()
 
@@ -52,7 +53,7 @@ func (suite *AgentTestSuite) TestStopProcessing() {
 	suite.init(queue, &numberOfMessages)
 	suite.mock.chunkSize = 30000
 
-	go suite.agent.Run(suite.ctx)
+	go suite.agent.Run(suite.ctx, suite.waitGroupForTest())
 	time.Sleep(2 * time.Millisecond)
 	suite.cancelFunc()
 
@@ -69,7 +70,7 @@ func (suite *AgentTestSuite) TestMessageSendFailed() {
 
 	suite.init("test-queue-2", nil)
 
-	go suite.agent.Run(suite.ctx)
+	go suite.agent.Run(suite.ctx, suite.waitGroupForTest())
 	time.Sleep(500 * time.Millisecond)
 	suite.cancelFunc()
 
@@ -85,7 +86,7 @@ func (suite *AgentTestSuite) TestMessageAckFailed() {
 	suite.init(queue, nil)
 	suite.mock.messages[queue][1] = messageForTest(nil, &receiptHandle, nil)
 
-	go suite.agent.Run(suite.ctx)
+	go suite.agent.Run(suite.ctx, suite.waitGroupForTest())
 	time.Sleep(500 * time.Millisecond)
 	suite.cancelFunc()
 
@@ -93,4 +94,10 @@ func (suite *AgentTestSuite) TestMessageAckFailed() {
 	suite.True(suite.mock.closed)
 	suite.Len(suite.mock.messagesSend, 1)
 	suite.Len(suite.mock.acks, 1)
+}
+
+func (suite *AgentTestSuite) waitGroupForTest() *sync.WaitGroup {
+	wg := &sync.WaitGroup{}
+	wg.Add(1)
+	return wg
 }
