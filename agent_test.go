@@ -57,7 +57,7 @@ func (suite *AgentTestSuite) TestStopProcessing() {
 	time.Sleep(2 * time.Millisecond)
 	suite.cancelFunc()
 
-	time.Sleep(1 * time.Second)
+	time.Sleep(3 * time.Second)
 	suite.True(suite.mock.flushed)
 	suite.True(suite.mock.closed)
 	messagesSend, ok := suite.mock.messagesSend["test-topic"]
