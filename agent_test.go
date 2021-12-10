@@ -49,12 +49,12 @@ func (suite *AgentTestSuite) TestProcessMessages() {
 func (suite *AgentTestSuite) TestStopProcessing() {
 
 	queue := "test-queue"
-	numberOfMessages := 30000
+	numberOfMessages := 300000
 	suite.init(queue, &numberOfMessages)
 	suite.mock.chunkSize = 30000
 
 	go suite.agent.Run(suite.ctx, suite.waitGroupForTest())
-	time.Sleep(2 * time.Millisecond)
+	time.Sleep(100 * time.Millisecond)
 	suite.cancelFunc()
 
 	time.Sleep(3 * time.Second)
