@@ -3,7 +3,7 @@ name: Image Build
 on:
   create:
     tags:
-      - k8s/v*
+      - v*
 
 jobs:
   go-build:
