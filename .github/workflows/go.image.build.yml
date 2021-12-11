@@ -16,6 +16,8 @@ jobs:
         uses: actions/setup-go@v2
         with:
           go-version: ${{ env.goversion }}
+      - name: DockerCompose
+        run: docker-compose -f fixtures/docker-compose.yml up -d
       - name: Run tests
         run: go test -v  -covermode=count ./...
       - name: Build Binary
