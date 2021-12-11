@@ -17,6 +17,12 @@ jobs:
         uses: actions/checkout@v2
       - name: Get Go version
         run: echo "goversion=`egrep -i '^go [1-2][.][0-9]+$' go.mod | sed 's/go //' | sed 's/$/.x/'`" >> $GITHUB_ENV
+      - uses: uraimo/run-on-arch-action@v2.0.5
+        name: Build artifact
+        id: build
+        with:
+          arch: aarch64
+          distro: ubuntu18.04
       - name: Install Go
         uses: actions/setup-go@v2
         with:
