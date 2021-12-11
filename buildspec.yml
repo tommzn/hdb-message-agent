@@ -1,0 +1,20 @@
+phases:
+  pre_build:
+    commands:
+      - $IMAGE_TAG=$(git tag -l v* --sort=authordate | tail  -n 1)
+      - echo Image Tag $IMAGE_TAG
+      - echo Logging in to Github Container Registry
+      - echo $CR_PAT | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Building the Docker image...          
+      - docker build -t ghcr.io/$IMAGE_REPO_NAME:$IMAGE_TAG -f Dockerfile.arm64 .
+      - docker tag ghcr.io/$IMAGE_REPO_NAME:$IMAGE_TAG ghcr.io/$IMAGE_REPO_NAME:latest
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Pushing the Docker image...
+      - docker push ghcr.io/$IMAGE_REPO_NAME:$IMAGE_TAG 
+      - docker push ghcr.io/$IMAGE_REPO_NAME:latest
+      - docker logout
