@@ -15,7 +15,7 @@ jobs:
     steps:
       - name: Set version tag
         id: release
-        run: echo ::set-output name=tag::${GITHUB_REF#refs/*/*/}
+        run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
       - name: Checkout code
         uses: actions/checkout@v2
       - name: DockerCompose
