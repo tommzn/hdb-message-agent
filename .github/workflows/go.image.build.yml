@@ -1,45 +1,35 @@
+
 name: Image Build
 on:
-  push:
-    branches:
-      - main
+  create:
+    tags:
+      - v*
+
 jobs:
   go-build:
-    name: Go Test & Binary Build
+    name: Go Binary & Image Build
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: [amd64]
     steps:
+      - name: Set version tag
+        id: release
+        run: echo ::set-output name=tag::${GITHUB_REF#refs/*/*/}
       - name: Checkout code
         uses: actions/checkout@v2
+      - name: DockerCompose
+        run: docker-compose -f fixtures/docker-compose.yml up -d
       - name: Get Go version
         run: echo "goversion=`egrep -i '^go [1-2][.][0-9]+$' go.mod | sed 's/go //' | sed 's/$/.x/'`" >> $GITHUB_ENV
       - name: Install Go
         uses: actions/setup-go@v2
         with:
           go-version: ${{ env.goversion }}
-      - name: DockerCompose
-        run: docker-compose -f fixtures/docker-compose.yml up -d
       - name: Run tests
         run: go test -v  -covermode=count ./...
       - name: Build Binary
-        run: CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -v -o build_artifact_bin
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: build_artifact_bin
-          path: build_artifact_bin
-          retention-days: 1
-        
-  image-build:
-    name: Build and Deploy Docker Image
-    needs: [go-build]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Download Golang Binary
-        uses: actions/download-artifact@v2
-        with:
-          name: build_artifact_bin
+        run: CGO_ENABLED=0 GOOS=linux GOARCH=${{ matrix.arch }} go build -tags musl -a -installsuffix cgo -v -o build_artifact_bin
       - name: Log in to GitHub Docker Registry
         uses: docker/login-action@v1
         with:
@@ -49,10 +39,10 @@ jobs:
       - name: Build Image
         uses: docker/build-push-action@v2
         with:
-          context: .
+          context: ./k8s
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}:${{ github.sha }}
-            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.repository }}/${{ matrix.arch }}:${{ steps.release.outputs.tag }}
+            ghcr.io/${{ github.repository }}/${{ matrix.arch }}:latest
   
         
