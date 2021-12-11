@@ -4,7 +4,7 @@ WORKDIR /build
 
 COPY . .
 
-RUN apk add librdkafka-dev pkgconf
+RUN apk add build-base librdkafka-dev pkgconf
 
 RUN go build -tags dynamic -v -o build_artifact_bin
 
