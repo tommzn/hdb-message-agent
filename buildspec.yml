@@ -5,7 +5,7 @@ phases:
     commands:
       - git status
       - git tag
-      - IMAGE_TAG="$(git describe --tags --abbrev=0)"
+      - IMAGE_TAG="$(git tag -l v* --sort=authordate | tail  -n 1)"
       - echo Image Tag $IMAGE_TAG
       - echo Logging in to Github Container Registry
       - echo $CR_PAT | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
