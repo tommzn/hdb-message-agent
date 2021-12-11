@@ -3,6 +3,8 @@ version: 0.2
 phases:
   pre_build:
     commands:
+      - git status
+      - git tag
       - IMAGE_TAG="$(git describe --tags --abbrev=0)"
       - echo Image Tag $IMAGE_TAG
       - echo Logging in to Github Container Registry
