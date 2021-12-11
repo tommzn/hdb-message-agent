@@ -8,9 +8,9 @@ RUN apk add build-base librdkafka-dev pkgconf
 
 RUN go build -tags dynamic -v -o build_artifact_bin
 
-FROM aarch64/alpine:latest
+FROM arm64v8/golang:1.16-alpine
 
-RUN apk add --no-cache ca-certificates librdkafka-dev pkgconf
+RUN apk add --no-cache ca-certificates build-base librdkafka-dev pkgconf
 
 WORKDIR /go
 
