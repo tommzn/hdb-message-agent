@@ -3,8 +3,6 @@ version: 0.2
 phases:
   pre_build:
     commands:
-      - git status
-      - git tag
       - IMAGE_TAG="$(git tag -l v* --sort=authordate | tail  -n 1)"
       - echo Image Tag $IMAGE_TAG
       - echo Logging in to Github Container Registry
