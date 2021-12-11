@@ -18,7 +18,7 @@ jobs:
         run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: DockerCompose
+      - name: Swtup Test Env
         run: docker-compose -f fixtures/docker-compose.yml up -d
       - name: Get Go version
         run: echo "goversion=`egrep -i '^go [1-2][.][0-9]+$' go.mod | sed 's/go //' | sed 's/$/.x/'`" >> $GITHUB_ENV
@@ -39,7 +39,6 @@ jobs:
       - name: Build Image
         uses: docker/build-push-action@v2
         with:
-          context: ./k8s
           push: true
           tags: |
             ghcr.io/${{ github.repository }}/${{ matrix.arch }}:${{ steps.release.outputs.tag }}
