@@ -15,6 +15,14 @@ jobs:
         run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
       - name: Checkout code
         uses: actions/checkout@v2
+      - name: Get Go version
+        run: echo "goversion=`egrep -i '^go [1-2][.][0-9]+$' go.mod | sed 's/go //' | sed 's/$/.x/'`" >> $GITHUB_ENV
+      - name: Install Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ env.goversion }}
+      - name: Build Binary
+        run: CGO_ENABLED=1 GOOS=linux GOARCH=arm64 go build -tags dynamic -a -installsuffix cgo -v -o build_artifact_bin
       - name: Log in to GitHub Docker Registry
         uses: docker/login-action@v1
         with:
@@ -25,7 +33,6 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: Dockerfile.arm64
           push: true
           tags: |
             ghcr.io/${{ github.repository }}/arm64:${{ steps.release.outputs.tag }}

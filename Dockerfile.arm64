@@ -1,18 +1,7 @@
-FROM arm64v8/golang:latest as bulder
+FROM arm64v8/golang:latest as builder
 
 WORKDIR /go
 
 COPY . .
 
 RUN CGO_ENABLED=1 GOOS=linux GOARCH=arm64 go build -tags musl -a -installsuffix cgo -v -o build_artifact_bin
-
-FROM alpine:latest
-
-RUN apk add --no-cache ca-certificates
-
-WORKDIR /go
-
-COPY --from=builder /go/build_artifact_bin hdb-bin
-
-RUN chmod 755 /go/hdb-bin
-ENTRYPOINT ["/go/hdb-bin"]
