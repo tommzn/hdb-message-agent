@@ -6,7 +6,7 @@ COPY . .
 
 RUN apk add librdkafka-dev pkgconf
 
-RUN go build -v -o build_artifact_bin
+RUN go build -tags dynamic -v -o build_artifact_bin
 
 FROM aarch64/alpine:latest
 
