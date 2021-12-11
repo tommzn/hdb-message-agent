@@ -39,6 +39,7 @@ jobs:
       - name: Build Image
         uses: docker/build-push-action@v2
         with:
+          context: .
           push: true
           tags: |
             ghcr.io/${{ github.repository }}/${{ matrix.arch }}:${{ steps.release.outputs.tag }}
