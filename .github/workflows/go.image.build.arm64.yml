@@ -1,5 +1,5 @@
 
-name: Image Build
+name: Image Build (ARM64)
 on:
   create:
     tags:
