@@ -22,12 +22,11 @@ func main() {
 // bootstrap loads config and creates a processor for SQS events.
 func bootstrap(conf config.Config) (*core.Minion, error) {
 
+	secretsManager := newSecretsManager()
 	conf, err := loadConfig()
 	if err != nil {
 		return nil, err
 	}
-
-	secretsManager := newSecretsManager()
 	logger := newLogger(conf, secretsManager)
 	agent, err := newAgent(conf, logger)
 	return core.NewMinion(agent), err
