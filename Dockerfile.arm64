@@ -4,11 +4,13 @@ WORKDIR /build
 
 COPY . .
 
+RUN apk add librdkafka-dev pkgconf
+
 RUN go build -v -o build_artifact_bin
 
 FROM aarch64/alpine:latest
 
-RUN apk add --no-cache ca-certificates
+RUN apk add --no-cache ca-certificates librdkafka-dev pkgconf
 
 WORKDIR /go
 
