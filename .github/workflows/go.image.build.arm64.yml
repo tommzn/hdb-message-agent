@@ -9,9 +9,6 @@ jobs:
   go-build:
     name: Go Binary & Image Build
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        arch: [amd64, arm64]
     steps:
       - name: Set version tag
         id: release
@@ -29,11 +26,7 @@ jobs:
       - name: Run tests
         run: go test -v  -covermode=count ./...
       - name: Build Binary
-        if: matrix.arch != 'arm64'
-        run: CGO_ENABLED=1 GOOS=linux GOARCH=${{ matrix.arch }} go build -a -installsuffix cgo -v -o build_artifact_bin
-      - name: Build Binary
-        if: matrix.arch == 'arm64'
-        run: CGO_ENABLED=1 GOOS=linux GOARCH=${{ matrix.arch }} go build -tags musl -a -installsuffix cgo -v -o build_artifact_bin
+        run: CGO_ENABLED=1 GOOS=linux GOARCH=arm64 go build -tags musl -a -installsuffix cgo -v -o build_artifact_bin
       - name: Log in to GitHub Docker Registry
         uses: docker/login-action@v1
         with:
@@ -46,7 +39,7 @@ jobs:
           context: .
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}/${{ matrix.arch }}:${{ steps.release.outputs.tag }}
-            ghcr.io/${{ github.repository }}/${{ matrix.arch }}:latest
+            ghcr.io/${{ github.repository }}/arm64:${{ steps.release.outputs.tag }}
+            ghcr.io/${{ github.repository }}/arm64:latest
   
         
