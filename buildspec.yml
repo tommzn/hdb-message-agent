@@ -11,12 +11,12 @@ phases:
     commands:
       - echo Build started on `date`
       - echo Building the Docker image...          
-      - docker build -t ghcr.io/$IMAGE_REPO_NAME:$IMAGE_TAG -f Dockerfile.arm64 .
-      - docker tag ghcr.io/$IMAGE_REPO_NAME:$IMAGE_TAG ghcr.io/$IMAGE_REPO_NAME:latest
+      - docker build -t ghcr.io/$IMAGE_REPO_NAME/arm64:$IMAGE_TAG -f Dockerfile.arm64 .
+      - docker tag ghcr.io/$IMAGE_REPO_NAME/arm64:$IMAGE_TAG ghcr.io/$IMAGE_REPO_NAME/arm64:latest
   post_build:
     commands:
       - echo Build completed on `date`
       - echo Pushing the Docker image...
-      - docker push ghcr.io/$IMAGE_REPO_NAME:$IMAGE_TAG 
-      - docker push ghcr.io/$IMAGE_REPO_NAME:latest
+      - docker push ghcr.io/$IMAGE_REPO_NAME/arm64:$IMAGE_TAG 
+      - docker push ghcr.io/$IMAGE_REPO_NAME/arm64:latest
       - docker logout
