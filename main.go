@@ -22,7 +22,7 @@ func main() {
 // bootstrap loads config and creates a processor for SQS events.
 func bootstrap(conf config.Config) (*core.Minion, error) {
 
-	conf, err := loadConfig("/etc/hdb/config.yml")
+	conf, err := loadConfig()
 	if err != nil {
 		return nil, err
 	}
@@ -34,9 +34,18 @@ func bootstrap(conf config.Config) (*core.Minion, error) {
 }
 
 // loadConfig from config file.
-func loadConfig(filename string) (config.Config, error) {
-	configSource := config.NewFileConfigSource(&filename)
-	return configSource.Load()
+func loadConfig() (config.Config, error) {
+
+	configSource, err := config.NewS3ConfigSourceFromEnv()
+	if err != nil {
+		return nil, err
+	}
+
+	conf, err := configSource.Load()
+	if err != nil {
+		return nil, err
+	}
+	return conf, nil
 }
 
 // newSecretsManager retruns a new secrets manager from passed config.
