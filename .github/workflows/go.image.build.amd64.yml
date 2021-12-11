@@ -1,5 +1,5 @@
 
-name: Image Build
+name: Image Build (AMD64)
 on:
   create:
     tags:
@@ -15,16 +15,12 @@ jobs:
         run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Swtup Test Env
-        run: docker-compose -f fixtures/docker-compose.yml up -d
       - name: Get Go version
         run: echo "goversion=`egrep -i '^go [1-2][.][0-9]+$' go.mod | sed 's/go //' | sed 's/$/.x/'`" >> $GITHUB_ENV
       - name: Install Go
         uses: actions/setup-go@v2
         with:
           go-version: ${{ env.goversion }}
-      - name: Run tests
-        run: go test -v  -covermode=count ./...
       - name: Build Binary
         run: CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -v -o build_artifact_bin
       - name: Log in to GitHub Docker Registry

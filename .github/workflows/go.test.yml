@@ -1,0 +1,25 @@
+
+name: Golang Tests
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  go-test:
+    name: Go Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Setup Test Env
+        run: docker-compose -f fixtures/docker-compose.yml up -d
+      - name: Get Go version
+        run: echo "goversion=`egrep -i '^go [1-2][.][0-9]+$' go.mod | sed 's/go //' | sed 's/$/.x/'`" >> $GITHUB_ENV
+      - name: Install Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ env.goversion }}
+      - name: Run tests
+        run: go test -v  -covermode=count ./...  
+        
