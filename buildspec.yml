@@ -1,7 +1,9 @@
+version: 0.2
+
 phases:
   pre_build:
     commands:
-      - $IMAGE_TAG=$(git tag -l v* --sort=authordate | tail  -n 1)
+      - IMAGE_TAG="$(git describe --tags --abbrev=0)"
       - echo Image Tag $IMAGE_TAG
       - echo Logging in to Github Container Registry
       - echo $CR_PAT | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
