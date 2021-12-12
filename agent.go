@@ -41,9 +41,9 @@ func routesFromConfig(conf config.Config) []route {
 
 func (agt *agent) Run(ctx context.Context, waitGroup *sync.WaitGroup) error {
 
-	defer agt.logger.Flush()
-	defer agt.target.close()
 	defer waitGroup.Done()
+	defer agt.target.close()
+	defer agt.logger.Flush()
 
 	wg := &sync.WaitGroup{}
 	waitCh := make(chan struct{})
