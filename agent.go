@@ -48,6 +48,7 @@ func (agt *agent) Run(ctx context.Context, waitGroup *sync.WaitGroup) error {
 	wg := &sync.WaitGroup{}
 	waitCh := make(chan struct{})
 
+	agt.logger.Infof("Run message forwarding for %d queues.", len(agt.routes))
 	go func() {
 		for _, route := range agt.routes {
 			wg.Add(1)
@@ -71,6 +72,7 @@ func (agt *agent) Run(ctx context.Context, waitGroup *sync.WaitGroup) error {
 func (agt *agent) forward(sourceQueue, targetTopic string, wg *sync.WaitGroup) {
 
 	defer wg.Done()
+	agt.logger.Infof("Start message forwarding from qeuue %s to topic %s.", sourceQueue, targetTopic)
 
 	messages, err := agt.source.Receive(sourceQueue)
 	if err != nil {
