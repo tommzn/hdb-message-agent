@@ -12,22 +12,23 @@ import (
 
 func main() {
 
-	minion, bootstrapError := bootstrap(nil)
+	ctx := context.Background()
+	minion, bootstrapError := bootstrap(nil, ctx)
 	exitOnError(bootstrapError)
 
-	executionError := minion.Run(context.Background())
+	executionError := minion.Run(ctx)
 	exitOnError(executionError)
 }
 
 // bootstrap loads config and creates a processor for SQS events.
-func bootstrap(conf config.Config) (*core.Minion, error) {
+func bootstrap(conf config.Config, ctx context.Context) (*core.Minion, error) {
 
 	secretsManager := newSecretsManager()
 	conf, err := loadConfig()
 	if err != nil {
 		return nil, err
 	}
-	logger := newLogger(conf, secretsManager)
+	logger := newLogger(conf, secretsManager, ctx)
 	agent, err := newAgent(conf, logger)
 	return core.NewMinion(agent), err
 }
@@ -55,8 +56,13 @@ func newSecretsManager() secrets.SecretsManager {
 }
 
 // newLogger creates a new logger from  passed config.
-func newLogger(conf config.Config, secretsMenager secrets.SecretsManager) log.Logger {
-	return log.NewLoggerFromConfig(conf, secretsMenager)
+func newLogger(conf config.Config, secretsMenager secrets.SecretsManager, ctx context.Context) log.Logger {
+
+	logger := log.NewLoggerFromConfig(conf, secretsMenager)
+	logContextValues := make(map[string]string)
+	logContextValues[log.LogCtxNamespace] = "hdb-message-agent"
+	logger.WithContext(log.LogContextWithValues(ctx, logContextValues))
+	return logger
 }
 
 func exitOnError(err error) {
