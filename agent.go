@@ -7,17 +7,19 @@ import (
 	sqs "github.com/tommzn/aws-sqs"
 	config "github.com/tommzn/go-config"
 	log "github.com/tommzn/go-log"
+	metrics "github.com/tommzn/go-metrics"
 )
 
 func newAgent(conf config.Config, logger log.Logger) (*agent, error) {
 
 	messagePublisher, err := newKafkaClient(conf)
 	return &agent{
-		source:   sqs.NewConsumer(conf),
-		target:   messagePublisher,
-		routes:   routesFromConfig(conf),
-		stopChan: make(chan bool, 1),
-		logger:   logger,
+		source:          sqs.NewConsumer(conf),
+		target:          messagePublisher,
+		routes:          routesFromConfig(conf),
+		stopChan:        make(chan bool, 1),
+		logger:          logger,
+		metricPublisher: metrics.NewTimestreamPublisher(conf, logger),
 	}, err
 }
 
@@ -66,6 +68,11 @@ func (agt *agent) Run(ctx context.Context, waitGroup *sync.WaitGroup) error {
 		agt.logger.Info("Message publishing finished.")
 	}
 	agt.target.flush()
+
+	agt.metricPublisher.Flush()
+	if err := agt.metricPublisher.Error(); err != nil {
+		agt.logger.Error(err)
+	}
 	return nil
 }
 
@@ -103,6 +110,7 @@ func (agt *agent) forward(sourceQueue, targetTopic string, wg *sync.WaitGroup) {
 			agt.logger.Errorf("Unable to ack message processing on queue %s, reason: %s", sourceQueue, err)
 			return
 		}
+		agt.metricPublisher.Send(createMeasurement(sourceQueue, targetTopic))
 	}
 }
 
@@ -112,4 +120,26 @@ func (agt *agent) stop() {
 
 func (agt *agent) shouldStop() bool {
 	return len(agt.stopChan) != 0
+}
+
+func createMeasurement(sourceQueue, targetTopic string) metrics.Measurement {
+	return metrics.Measurement{
+		MetricName: "hdb-message-agent",
+		Tags: []metrics.MeasurementTag{
+			metrics.MeasurementTag{
+				Name:  "source_queue",
+				Value: sourceQueue,
+			},
+			metrics.MeasurementTag{
+				Name:  "target_queue",
+				Value: targetTopic,
+			},
+		},
+		Values: []metrics.MeasurementValue{
+			metrics.MeasurementValue{
+				Name:  "count",
+				Value: 1,
+			},
+		},
+	}
 }
