@@ -1,26 +1,29 @@
-# Use the latest 2.1 version of CircleCI pipeline process engine.
-# See: https://circleci.com/docs/2.0/configuration-reference
 version: 2.1
 
-# Define a job to be invoked later in a workflow.
-# See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 jobs:
-  say-hello:
-    # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
-    # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
+  github-build-and_push:
+    machine:
+      image: ubuntu-2004:202101-01
+    resource_class: arm.medium
     docker:
-      - image: cimg/base:stable
-    # Add steps to the job
-    # See: https://circleci.com/docs/2.0/configuration-reference/#steps
+      - image: docker:latest
     steps:
       - checkout
+      - setup_remote_docker
       - run:
-          name: "Say hello"
-          command: "echo Hello, World!"
-
-# Invoke jobs via workflows
-# See: https://circleci.com/docs/2.0/configuration-reference/#workflows
+          name: Build Image
+          command: env
+          #command: docker build -t ghcr.io/$IMAGE_REPO_NAME/arm64:$IMAGE_TAG -f Dockerfile.arm64 .
+  
 workflows:
-  say-hello-workflow:
+  version: 2
+  arm64-image-build:
     jobs:
-      - say-hello
+      - github-build-and_push:
+          #filters:
+          #  tags:
+          #    only: /^v[0-9]+(\.[0-9]+)*$/
+          #  branches:
+          #    only: main
+          requires:
+            - go-build
