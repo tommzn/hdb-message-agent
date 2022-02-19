@@ -13,8 +13,11 @@ jobs:
       - run:
           name: Build Image
           command: |
+            IMAGE_TAG="$(git tag -l v* --sort=authordate | tail  -n 1)"
+            echo Image Tag $IMAGE_TAG
             docker build -t $GHCR_REPOSITORY:$CIRCLE_SHA1 -f Dockerfile.arm64 .
             docker push $GHCR_REPOSITORY:$CIRCLE_SHA1
+            docker push $GHCR_REPOSITORY:latest
       - run:
           name: GHCR Logout
           command: docker logout
