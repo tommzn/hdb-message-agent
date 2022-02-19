@@ -9,8 +9,9 @@ jobs:
       - checkout
       - run:
           name: Build Image
-          command: env
-          #command: docker build -t ghcr.io/$IMAGE_REPO_NAME/arm64:$IMAGE_TAG -f Dockerfile.arm64 .
+          command: |
+            docker build -t $GHCR_REPOSITORY:$CIRCLE_SHA1 -f Dockerfile.arm64 .
+            docker push $GHCR_REPOSITORY:$CIRCLE_SHA1
   
 workflows:
   version: 2
