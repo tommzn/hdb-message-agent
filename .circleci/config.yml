@@ -1,0 +1,36 @@
+version: 2.1
+
+jobs:
+  github-build-and_push:
+    machine:
+      image: ubuntu-2004:202101-01
+    resource_class: arm.medium
+    steps:
+      - checkout
+      - run:
+          name: GHCR Login
+          command: echo $CR_PAT | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
+      - run:
+          name: Build Image
+          command: |
+            IMAGE_TAG="$(git tag -l v* --sort=authordate | tail  -n 1)"
+            echo Image Tag $IMAGE_TAG
+            docker build -t $GHCR_REPOSITORY:$IMAGE_TAG -f Dockerfile.arm64 .
+            docker tag $GHCR_REPOSITORY:$IMAGE_TAG $GHCR_REPOSITORY:latest
+            docker push $GHCR_REPOSITORY:$IMAGE_TAG
+            docker push $GHCR_REPOSITORY:latest
+      - run:
+          name: GHCR Logout
+          command: docker logout
+  
+workflows:
+  version: 2
+  arm64-image-build:
+    jobs:
+      - github-build-and_push
+          #filters:
+          #  tags:
+          #    only: /^v[0-9]+(\.[0-9]+)*$/
+          #  branches:
+          #    only: main
+          
