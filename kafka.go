@@ -7,7 +7,7 @@ import (
 
 func newKafkaClient(conf config.Config) (messagePublisher, error) {
 
-	server := conf.Get("kafka.server", config.AsStringPtr("localhost"))
+	server := conf.Get("kafka.servers", config.AsStringPtr("localhost"))
 	producer, err := kafka.NewProducer(&kafka.ConfigMap{"bootstrap.servers": *server})
 	return &kafkaClient{
 		producer: producer,
