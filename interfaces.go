@@ -10,7 +10,7 @@ type messageReceiver interface {
 }
 
 type messagePublisher interface {
-	send(string, []byte) error
+	send(string, string) error
 	flush()
 	close()
 }

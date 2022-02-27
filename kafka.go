@@ -14,12 +14,12 @@ func newKafkaClient(conf config.Config) (messagePublisher, error) {
 	}, err
 }
 
-func (client *kafkaClient) send(topic string, message []byte) error {
+func (client *kafkaClient) send(topic string, message string) error {
 
 	deliveryChan := make(chan kafka.Event)
 	client.producer.Produce(&kafka.Message{
 		TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
-		Value:          message,
+		Value:          []byte(message),
 	}, deliveryChan)
 
 	event := <-deliveryChan

@@ -100,7 +100,7 @@ func (agt *agent) forward(sourceQueue, targetTopic string, wg *sync.WaitGroup) {
 			return
 		}
 
-		err = agt.target.send(targetTopic, []byte(*message.Body))
+		err = agt.target.send(targetTopic, *message.Body)
 		if err != nil {
 			agt.logger.Errorf("Unable to publish message to topic %s, reason: %s", targetTopic, err)
 			return

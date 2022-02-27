@@ -19,7 +19,7 @@ func (suite *KafkaTestSuite) TestPublishMessages() {
 	client, err := newKafkaClient(conf)
 	suite.Nil(err)
 
-	suite.Nil(client.send("test-topic", []byte("xxx")))
+	suite.Nil(client.send("test-topic", "xxx"))
 	client.flush()
 	client.close()
 }

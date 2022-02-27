@@ -41,16 +41,16 @@ func (mock *integrationMock) Ack(queue string, receiptHandle *string) error {
 	return nil
 }
 
-func (mock *integrationMock) send(topic string, message []byte) error {
+func (mock *integrationMock) send(topic string, message string) error {
 
 	if topic == "error" {
 		return errors.New("Error occurs")
 	}
 
 	if _, ok := mock.messagesSend[topic]; ok {
-		mock.messagesSend[topic] = append(mock.messagesSend[topic], string(message))
+		mock.messagesSend[topic] = append(mock.messagesSend[topic], message)
 	} else {
-		mock.messagesSend[topic] = []string{string(message)}
+		mock.messagesSend[topic] = []string{message}
 	}
 	return nil
 }
