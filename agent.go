@@ -81,36 +81,39 @@ func (agt *agent) forward(sourceQueue, targetTopic string, wg *sync.WaitGroup) {
 	defer wg.Done()
 	agt.logger.Infof("Start message forwarding from qeuue %s to topic %s.", sourceQueue, targetTopic)
 
-	messages, err := agt.source.Receive(sourceQueue)
-	if err != nil {
-		agt.logger.Error("Error receiving new messages: ", err)
-		return
-	}
+	for {
 
-	if len(messages) == 0 {
-		agt.logger.Info("No new new messages at queue ", sourceQueue)
-		return
-	}
-
-	agt.logger.Debugf("Process %d messages from queue %s", len(messages), sourceQueue)
-	for _, message := range messages {
-
-		if agt.shouldStop() {
-			agt.logger.Info("Stop message delivery as requested.")
-			return
-		}
-
-		err = agt.target.send(targetTopic, *message.Body)
+		messages, err := agt.source.Receive(sourceQueue)
 		if err != nil {
-			agt.logger.Errorf("Unable to publish message to topic %s, reason: %s", targetTopic, err)
+			agt.logger.Error("Error receiving new messages: ", err)
 			return
 		}
-		err = agt.source.Ack(sourceQueue, message.ReceiptHandle)
-		if err != nil {
-			agt.logger.Errorf("Unable to ack message processing on queue %s, reason: %s", sourceQueue, err)
+
+		if len(messages) == 0 {
+			agt.logger.Info("No new new messages at queue ", sourceQueue)
 			return
 		}
-		agt.metricPublisher.Send(createMeasurement(sourceQueue, targetTopic))
+
+		agt.logger.Debugf("Process %d messages from queue %s", len(messages), sourceQueue)
+		for _, message := range messages {
+
+			if agt.shouldStop() {
+				agt.logger.Info("Stop message delivery as requested.")
+				return
+			}
+
+			err = agt.target.send(targetTopic, *message.Body)
+			if err != nil {
+				agt.logger.Errorf("Unable to publish message to topic %s, reason: %s", targetTopic, err)
+				return
+			}
+			err = agt.source.Ack(sourceQueue, message.ReceiptHandle)
+			if err != nil {
+				agt.logger.Errorf("Unable to ack message processing on queue %s, reason: %s", sourceQueue, err)
+				return
+			}
+			agt.metricPublisher.Send(createMeasurement(sourceQueue, targetTopic))
+		}
 	}
 }
 
