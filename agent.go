@@ -95,26 +95,35 @@ func (agt *agent) forward(sourceQueue, targetTopic string, wg *sync.WaitGroup) {
 		}
 
 		agt.logger.Debugf("Process %d messages from queue %s", len(messages), sourceQueue)
-		for _, message := range messages {
-
-			if agt.shouldStop() {
-				agt.logger.Info("Stop message delivery as requested.")
-				return
-			}
-
-			err = agt.target.send(targetTopic, *message.Body)
-			if err != nil {
-				agt.logger.Errorf("Unable to publish message to topic %s, reason: %s", targetTopic, err)
-				return
-			}
-			err = agt.source.Ack(sourceQueue, message.ReceiptHandle)
-			if err != nil {
-				agt.logger.Errorf("Unable to ack message processing on queue %s, reason: %s", sourceQueue, err)
-				return
-			}
-			agt.metricPublisher.Send(createMeasurement(sourceQueue, targetTopic))
-		}
+		messageCount := agt.publishMessage(messages, sourceQueue, targetTopic)
+		agt.metricPublisher.Send(createMeasurement(sourceQueue, targetTopic, messageCount))
 	}
+}
+
+func (agt *agent) publishMessage(messages []sqs.RawMessage, sourceQueue, targetTopic string) int {
+
+	messageCount := 0
+	for _, message := range messages {
+
+		if agt.shouldStop() {
+			agt.logger.Info("Stop message delivery as requested.")
+			return messageCount
+		}
+
+		err := agt.target.send(targetTopic, *message.Body)
+		if err != nil {
+			agt.logger.Errorf("Unable to publish message to topic %s, reason: %s", targetTopic, err)
+			return messageCount
+		}
+		err = agt.source.Ack(sourceQueue, message.ReceiptHandle)
+		if err != nil {
+			agt.logger.Errorf("Unable to ack message processing on queue %s, reason: %s", sourceQueue, err)
+			return messageCount
+		}
+		messageCount++
+
+	}
+	return messageCount
 }
 
 func (agt *agent) stop() {
@@ -125,7 +134,7 @@ func (agt *agent) shouldStop() bool {
 	return len(agt.stopChan) != 0
 }
 
-func createMeasurement(sourceQueue, targetTopic string) metrics.Measurement {
+func createMeasurement(sourceQueue, targetTopic string, messageCount int) metrics.Measurement {
 	return metrics.Measurement{
 		MetricName: "hdb-message-agent",
 		Tags: []metrics.MeasurementTag{
@@ -141,7 +150,7 @@ func createMeasurement(sourceQueue, targetTopic string) metrics.Measurement {
 		Values: []metrics.MeasurementValue{
 			metrics.MeasurementValue{
 				Name:  "count",
-				Value: 1,
+				Value: messageCount,
 			},
 		},
 	}
