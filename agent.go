@@ -54,10 +54,7 @@ func (agt *agent) Run(ctx context.Context, waitGroup *sync.WaitGroup) error {
 	go func() {
 		for _, route := range agt.routes {
 			wg.Add(1)
-			go func() {
-				messageCount := agt.forward(route.source, route.target, wg)
-				agt.metricPublisher.Send(createMeasurement(route.source, route.target, messageCount))
-			}()
+			go agt.forward(route.source, route.target, wg)
 		}
 		wg.Wait()
 		close(waitCh)
@@ -79,7 +76,7 @@ func (agt *agent) Run(ctx context.Context, waitGroup *sync.WaitGroup) error {
 	return nil
 }
 
-func (agt *agent) forward(sourceQueue, targetTopic string, wg *sync.WaitGroup) int {
+func (agt *agent) forward(sourceQueue, targetTopic string, wg *sync.WaitGroup) {
 
 	defer wg.Done()
 	agt.logger.Infof("Start message forwarding from qeuue %s to topic %s.", sourceQueue, targetTopic)
@@ -87,23 +84,35 @@ func (agt *agent) forward(sourceQueue, targetTopic string, wg *sync.WaitGroup) i
 	messageCount := 0
 	for {
 
-		messages, err := agt.source.Receive(sourceQueue)
-		if err != nil {
-			agt.logger.Error("Error receiving new messages: ", err)
-			return messageCount
+		messages := agt.readMessages(sourceQueue)
+		if messages == nil {
+			break
 		}
 
-		if len(messages) == 0 {
-			agt.logger.Info("No new new messages at queue ", sourceQueue)
-			return messageCount
-		}
-
-		agt.logger.Debugf("Process %d messages from queue %s", len(messages), sourceQueue)
-		messageCount += agt.publishMessage(messages, sourceQueue, targetTopic)
+		agt.logger.Debugf("Process %d messages from queue %s", len(*messages), sourceQueue)
+		messageCount += agt.publishMessages(*messages, sourceQueue, targetTopic)
+	}
+	if messageCount > 0 {
+		agt.metricPublisher.Send(createMeasurement(sourceQueue, targetTopic, messageCount))
 	}
 }
 
-func (agt *agent) publishMessage(messages []sqs.RawMessage, sourceQueue, targetTopic string) int {
+func (agt *agent) readMessages(sourceQueue string) *[]sqs.RawMessage {
+
+	messages, err := agt.source.Receive(sourceQueue)
+	if err != nil {
+		agt.logger.Error("Error receiving new messages: ", err)
+		return nil
+	}
+
+	if len(messages) == 0 {
+		agt.logger.Info("No new new messages at queue ", sourceQueue)
+		return nil
+	}
+	return &messages
+}
+
+func (agt *agent) publishMessages(messages []sqs.RawMessage, sourceQueue, targetTopic string) int {
 
 	messageCount := 0
 	for _, message := range messages {
