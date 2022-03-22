@@ -54,7 +54,10 @@ func (agt *agent) Run(ctx context.Context, waitGroup *sync.WaitGroup) error {
 	go func() {
 		for _, route := range agt.routes {
 			wg.Add(1)
-			go agt.forward(route.source, route.target, wg)
+			go func() {
+				messageCount := agt.forward(route.source, route.target, wg)
+				agt.metricPublisher.Send(createMeasurement(route.source, route.target, messageCount))
+			}()
 		}
 		wg.Wait()
 		close(waitCh)
@@ -76,27 +79,27 @@ func (agt *agent) Run(ctx context.Context, waitGroup *sync.WaitGroup) error {
 	return nil
 }
 
-func (agt *agent) forward(sourceQueue, targetTopic string, wg *sync.WaitGroup) {
+func (agt *agent) forward(sourceQueue, targetTopic string, wg *sync.WaitGroup) int {
 
 	defer wg.Done()
 	agt.logger.Infof("Start message forwarding from qeuue %s to topic %s.", sourceQueue, targetTopic)
 
+	messageCount := 0
 	for {
 
 		messages, err := agt.source.Receive(sourceQueue)
 		if err != nil {
 			agt.logger.Error("Error receiving new messages: ", err)
-			return
+			return messageCount
 		}
 
 		if len(messages) == 0 {
 			agt.logger.Info("No new new messages at queue ", sourceQueue)
-			return
+			return messageCount
 		}
 
 		agt.logger.Debugf("Process %d messages from queue %s", len(messages), sourceQueue)
-		messageCount := agt.publishMessage(messages, sourceQueue, targetTopic)
-		agt.metricPublisher.Send(createMeasurement(sourceQueue, targetTopic, messageCount))
+		messageCount += agt.publishMessage(messages, sourceQueue, targetTopic)
 	}
 }
 
