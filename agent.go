@@ -51,6 +51,7 @@ func (agt *agent) Run(ctx context.Context, waitGroup *sync.WaitGroup) error {
 	waitCh := make(chan struct{})
 
 	agt.logger.Infof("Run message forwarding for %d queues.", len(agt.routes))
+	agt.logger.Debugf("Routes: %+v", agt.routes)
 	go func() {
 		for _, route := range agt.routes {
 			wg.Add(1)
