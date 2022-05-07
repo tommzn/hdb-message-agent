@@ -57,12 +57,9 @@ func newSecretsManager() secrets.SecretsManager {
 
 // newLogger creates a new logger from  passed config.
 func newLogger(conf config.Config, secretsMenager secrets.SecretsManager, ctx context.Context) log.Logger {
-
 	logger := log.NewLoggerFromConfig(conf, secretsMenager)
-	logContextValues := make(map[string]string)
-	logContextValues[log.LogCtxNamespace] = "hdb-message-agent"
-	logger.WithContext(log.LogContextWithValues(ctx, logContextValues))
-	return logger
+	logger = log.WithNameSpace(logger, "hdb-message-agent")
+	return log.WithK8sContext(logger)
 }
 
 func exitOnError(err error) {
