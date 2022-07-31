@@ -8,7 +8,11 @@ import (
 func newKafkaClient(conf config.Config) (messagePublisher, error) {
 
 	server := conf.Get("kafka.servers", config.AsStringPtr("localhost"))
-	producer, err := kafka.NewProducer(&kafka.ConfigMap{"bootstrap.servers": *server})
+	producer, err := kafka.NewProducer(&kafka.ConfigMap{
+		"bootstrap.servers":   *server,
+		"retries":             3,
+		"delivery.timeout.ms": 3000,
+	})
 	return &kafkaClient{
 		producer: producer,
 	}, err
