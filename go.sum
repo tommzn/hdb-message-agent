@@ -412,6 +412,8 @@ github.com/tommzn/go-metrics v1.0.1/go.mod h1:cGVgmVebHyXasXXTVax9RN9gGFxDQ79DtA
 github.com/tommzn/go-secrets v1.0.0/go.mod h1:ZCiO/36WGUEgk5K7+S3U/JKIp4ghe5OA2fkckVN32/8=
 github.com/tommzn/go-secrets v1.1.1 h1:Ss2LaKdQSMlO6Z180U9GJfitCsXxTdS/fXZUzXXx3zM=
 github.com/tommzn/go-secrets v1.1.1/go.mod h1:ZCiO/36WGUEgk5K7+S3U/JKIp4ghe5OA2fkckVN32/8=
+github.com/tommzn/go-secrets v1.1.2 h1:OTjPeXtRMMxjO4HZAmfNeSWCXzo4wFczSYveDeuz+QA=
+github.com/tommzn/go-secrets v1.1.2/go.mod h1:ZCiO/36WGUEgk5K7+S3U/JKIp4ghe5OA2fkckVN32/8=
 github.com/tommzn/go-utils v1.0.2 h1:OnUdCJC46ogBDNnt+zwG1bN/RyoYoeNWBvPTbBITIGo=
 github.com/tommzn/go-utils v1.0.2/go.mod h1:TaQQLOtzHNmRx+/WUHgyNYvsqUX1N0JJEePC8Pye0Ow=
 github.com/tommzn/hdb-core v1.0.1 h1:D+1/2CN+A7zt4cJ11JOGwSlEDa8OTDHfZzzFq0MzQY4=
