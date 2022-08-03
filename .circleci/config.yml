@@ -41,14 +41,14 @@ workflows:
             tags:
               only: /^v[0-9]+(\.[0-9]+)*$/
             branches:
-              only: main
+              ignore: /.*/
       - notify: 
           context: slack-secrets
           filters:
             tags:
               only: /^v[0-9]+(\.[0-9]+)*$/
             branches:
-              only: main
+              ignore: /.*/
           requires:
             - github-build-and_push
           
