@@ -22,4 +22,5 @@ type route struct {
 
 type kafkaClient struct {
 	producer *kafka.Producer
+	logger   log.Logger
 }
