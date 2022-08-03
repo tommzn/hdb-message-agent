@@ -12,7 +12,7 @@ import (
 
 func newAgent(conf config.Config, logger log.Logger) (*agent, error) {
 
-	messagePublisher, err := newKafkaClient(conf)
+	messagePublisher, err := newKafkaClient(conf, logger)
 	return &agent{
 		source:          sqs.NewConsumer(conf),
 		target:          messagePublisher,
@@ -60,6 +60,10 @@ func (agt *agent) Run(ctx context.Context, waitGroup *sync.WaitGroup) error {
 		wg.Wait()
 		close(waitCh)
 	}()
+
+	if kafkaClient, ok := agt.target.(*kafkaClient); ok {
+		go kafkaClient.forwardLogs(ctx)
+	}
 
 	select {
 	case <-ctx.Done():

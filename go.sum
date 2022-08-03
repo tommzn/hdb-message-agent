@@ -407,6 +407,8 @@ github.com/tommzn/go-config v1.0.5/go.mod h1:K+ta7gkX32lSS+6tIIH9ttuhr35tV4AMAzO
 github.com/tommzn/go-log v1.1.0/go.mod h1:xB+EJtRRPcR+4oeenhSvKKeNq4Mqr2GjHEz1lJtYDZo=
 github.com/tommzn/go-log v1.1.1 h1:IqGrXT2yILMRRxVllh05GagmRwGrl4UWfV5KTof/j+k=
 github.com/tommzn/go-log v1.1.1/go.mod h1:BlZtaEdCS5H3Wpf18ivn+xspS1/DZycVYOSsPubiOPs=
+github.com/tommzn/go-log v1.1.2 h1:DvxfSBAnz0RBLnF5eizv/DtxYgkf/s2VlgAm/n5rRmY=
+github.com/tommzn/go-log v1.1.2/go.mod h1:BlZtaEdCS5H3Wpf18ivn+xspS1/DZycVYOSsPubiOPs=
 github.com/tommzn/go-metrics v1.0.1 h1:1S+4A4FQ8D+ZoRojpWTzuryshOmJnAU2/+hj4b4nxQk=
 github.com/tommzn/go-metrics v1.0.1/go.mod h1:cGVgmVebHyXasXXTVax9RN9gGFxDQ79DtAPM9Ywbljw=
 github.com/tommzn/go-secrets v1.0.0/go.mod h1:ZCiO/36WGUEgk5K7+S3U/JKIp4ghe5OA2fkckVN32/8=
