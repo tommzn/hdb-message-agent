@@ -25,6 +25,22 @@ jobs:
       - run:
           name: GHCR Logout
           command: docker logout
+  gitlab-trigger:
+    machine:
+      image: ubuntu-2004:202101-01
+    steps:
+      - run:
+          name: Show Environment
+          command: env
+      - run:
+          name: Tigger GitLab Pipeline
+          command: |
+            curl \
+              --request POST \
+              --form token=$GL_API_TOKEN \
+              --form ref=master \
+              --form "variables[UPLOAD_TO_S3]=true" \
+              "https://gitlab.example.com/api/v4/projects/$GL_PROJECT_ID/trigger/pipeline" 
   notify:
     machine:
       image: ubuntu-2004:202101-01
@@ -42,6 +58,14 @@ workflows:
               only: /^v[0-9]+(\.[0-9]+)*$/
             branches:
               ignore: /.*/
+      - github-build-and_push:
+          filters:
+            tags:
+              only: /^v[0-9]+(\.[0-9]+)*$/
+            branches:
+              ignore: /.*/
+          requires:
+            - github-build-and_push
       - notify: 
           context: slack-secrets
           filters:
