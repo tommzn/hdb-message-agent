@@ -34,7 +34,6 @@ jobs:
           command: |
             echo 'export REPOSITORY=$(echo "$CIRCLE_REPOSITORY_URL" | sed -e "s/.*\/\(.*\)\.git/\1/")' >> $BASH_ENV
             source $BASH_ENV
-          command: 
       - run:
           name: Tigger GitLab Pipeline
           command: |
