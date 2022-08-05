@@ -39,8 +39,9 @@ jobs:
               --request POST \
               --form token=$GL_API_TOKEN \
               --form ref=master \
-              --form "variables[UPLOAD_TO_S3]=true" \
-              "https://gitlab.example.com/api/v4/projects/$GL_PROJECT_ID/trigger/pipeline" 
+              --form "variables[REPOSITORY]=${echo "$CIRCLE_REPOSITORY_URL" | sed -e 's/.*\/\(.*\)\.git/\1/'}" \
+              --form "variables[VERSION]=$CIRCLE_TAG" \
+              "https://gitlab.com/api/v4/projects/$GL_PROJECT_ID/trigger/pipeline" 
   notify:
     machine:
       image: ubuntu-2004:202101-01
