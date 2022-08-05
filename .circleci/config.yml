@@ -44,11 +44,11 @@ jobs:
               --form "variables[REPOSITORY]=$REPOSITORY" \
               --form "variables[VERSION]=$CIRCLE_TAG" \
               "https://gitlab.com/api/v4/projects/$GL_PROJECT_ID/trigger/pipeline" 
-  notify:
-    machine:
-      image: ubuntu-2004:202101-01
-    steps:
       - slack/notify:
+          event: fail
+          template: basic_fail_1
+      - slack/notify:
+          event: pass
           template: success_tagged_deploy_1
   
 workflows:
@@ -69,13 +69,3 @@ workflows:
               ignore: /.*/
           requires:
             - github-build-and-push
-      - notify: 
-          context: slack-secrets
-          filters:
-            tags:
-              only: /^v[0-9]+(\.[0-9]+)*$/
-            branches:
-              ignore: /.*/
-          requires:
-            - github-build-and-push
-          
