@@ -32,7 +32,7 @@ jobs:
       - run:
           name: Extract Repository
           command: |
-            echo 'export REPOSITORY=$(echo "$CIRCLE_REPOSITORY_URL" | sed -e 's/.*\/\(.*\)\.git/\1/')' >> $BASH_ENV
+            echo 'export REPOSITORY=$(echo "$CIRCLE_REPOSITORY_URL" | sed -e "s/.*\/\(.*\)\.git/\1/")' >> $BASH_ENV
             source $BASH_ENV
           command: 
       - run:
