@@ -4,7 +4,7 @@ orbs:
   slack: circleci/slack@4.9.3
 
 jobs:
-  github-build-and_push:
+  github-build-and-push:
     machine:
       image: ubuntu-2004:202101-01
     resource_class: arm.medium
@@ -52,20 +52,20 @@ workflows:
   version: 2
   arm64-image-build:
     jobs:
-      - github-build-and_push:
+      - github-build-and-push:
           filters:
             tags:
               only: /^v[0-9]+(\.[0-9]+)*$/
             branches:
               ignore: /.*/
-      - github-build-and_push:
+      - gitlab-trigger:
           filters:
             tags:
               only: /^v[0-9]+(\.[0-9]+)*$/
             branches:
               ignore: /.*/
           requires:
-            - github-build-and_push
+            - github-build-and-push
       - notify: 
           context: slack-secrets
           filters:
@@ -74,5 +74,5 @@ workflows:
             branches:
               ignore: /.*/
           requires:
-            - github-build-and_push
+            - github-build-and-push
           
