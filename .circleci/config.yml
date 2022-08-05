@@ -31,7 +31,7 @@ jobs:
     steps:
       - run:
           name: Show Environment
-          command: env
+          command: echo "$CIRCLE_REPOSITORY_URL" | sed -e 's/.*\/\(.*\)\.git/\1/'
       - run:
           name: Tigger GitLab Pipeline
           command: |
