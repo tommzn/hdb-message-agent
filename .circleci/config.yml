@@ -30,8 +30,11 @@ jobs:
       image: ubuntu-2004:202101-01
     steps:
       - run:
-          name: Show Environment
-          command: echo "$CIRCLE_REPOSITORY_URL" | sed -e 's/.*\/\(.*\)\.git/\1/'
+          name: Extract Repository
+          command: |
+            echo 'export REPOSITORY=$(echo "$CIRCLE_REPOSITORY_URL" | sed -e 's/.*\/\(.*\)\.git/\1/')' >> $BASH_ENV
+            source $BASH_ENV
+          command: 
       - run:
           name: Tigger GitLab Pipeline
           command: |
@@ -39,7 +42,7 @@ jobs:
               --request POST \
               --form token=$GL_API_TOKEN \
               --form ref=master \
-              --form "variables[REPOSITORY]=${echo "$CIRCLE_REPOSITORY_URL" | sed -e 's/.*\/\(.*\)\.git/\1/'}" \
+              --form "variables[REPOSITORY]=$REPOSITORY" \
               --form "variables[VERSION]=$CIRCLE_TAG" \
               "https://gitlab.com/api/v4/projects/$GL_PROJECT_ID/trigger/pipeline" 
   notify:
