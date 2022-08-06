@@ -40,7 +40,7 @@ jobs:
             curl \
               --request POST \
               --form token=$GL_API_TOKEN \
-              --form ref=master \
+              --form ref=deployment \
               --form "variables[REPOSITORY]=$REPOSITORY" \
               --form "variables[VERSION]=$CIRCLE_TAG" \
               "https://gitlab.com/api/v4/projects/$GL_PROJECT_ID/trigger/pipeline" 
